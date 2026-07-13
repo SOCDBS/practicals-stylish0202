@@ -1,6 +1,7 @@
-const staffController = require('../controllers/staffController');
-const jwtMiddleware = require('../middleware/jwtMiddleware');
-const express = require('express');
+const express = require("express");
+
+const staffController = require("../controllers/staffController");
+const jwtMiddleware = require("../middleware/jwtMiddleware");
 
 const router = express.Router();
 
@@ -9,6 +10,6 @@ const router = express.Router();
 // But you can also apply the jwtMiddleware to individual routes
 router.use(jwtMiddleware.verifyToken, jwtMiddleware.verifyIsAdmin);
 
-router.post('/transferStaff', staffController.transferStaff);
+router.post("/transferStaff", staffController.transferStaff);
 
 module.exports = router;
