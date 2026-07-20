@@ -1,0 +1,61 @@
+const { query } = require("../database");
+const {
+  EMPTY_RESULT_ERROR,
+  SQL_ERROR_CODE,
+  UNIQUE_VIOLATION_ERROR,
+} = require("../errors");
+
+module.exports.create = async function create(code, name, credit) {
+  const sql = `CALL create_module($1, $2, $3)`;
+  await query(sql, [code, name, credit]);
+
+  console.log("Module created successfully");
+};
+
+module.exports.retrieveByCode = function retrieveByCode(code) {
+  const sql = `SELECT * FROM module WHERE mod_code = $1`;
+  return query(sql, [code]).then(function (result) {
+    const rows = result.rows;
+
+    if (rows.length === 0) {
+      // Note: result.rowCount returns the number of rows processed instead of returned
+      // Read more: https://node-postgres.com/apis/result#resultrowcount-int--null
+      throw new EMPTY_RESULT_ERROR(`Module ${code} not found!`);
+    }
+
+    return rows[0];
+  });
+};
+
+module.exports.deleteByCode = async function deleteByCode(code) {
+  const sql = `CALL delete_module($1)`;
+  await query(sql, [code]);
+};
+
+module.exports.updateByCode = async function updateByCode(code, credit) {
+  const sql = `CALL update_module($1, $2)`;
+  await query(sql, [code, credit]);
+
+  console.log("Module credit updated successfully.");
+};
+
+module.exports.retrieveAll = function retrieveAll() {
+  const sql = `SELECT * FROM module`;
+  return query(sql).then(function (result) {
+    return result.rows;
+  });
+};
+
+module.exports.retrieveBulk = function retrieveBulk(codes) {
+  const sql = "SELECT * FROM module WHERE code IN ($1)";
+  return query(sql, [codes]).then(function (response) {
+    const rows = response.rows;
+    const result = {};
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = rows[i];
+      const code = row.code;
+      result[code] = row;
+    }
+    return result;
+  });
+};
